@@ -3,15 +3,18 @@ var opentok_session_id;
 var opentok_token;
 
 // See the config.js file.
-if (OPENTOK_API_KEY && OPENTOK_SESSION_ID && OPENTOK_TOKEN) {
-  opentok_api_key = OPENTOK_API_KEY;
-  opentok_session_id = OPENTOK_SESSION_ID;
-  opentok_token = OPENTOK_TOKEN;
-  initializeSession();
-} else {
-  alert(
-    "Failed to get configuration variables. Make sure you have updated the config.js file."
-  );
+
+window.onload = function(){
+  if (OPENTOK_API_KEY && OPENTOK_SESSION_ID && OPENTOK_TOKEN) {
+    opentok_api_key = OPENTOK_API_KEY;
+    opentok_session_id = OPENTOK_SESSION_ID;
+    opentok_token = OPENTOK_TOKEN;
+    initializeSession();
+  } else {
+    alert(
+      "Failed to get configuration variables. Make sure you have updated the config.js file."
+    );
+  }
 }
 
 // Handling all of our errors here by logging them to the console
@@ -74,9 +77,9 @@ const getYourTrackOn = () => {
   }
 };
 
-function add_snapshot() {
+/*function add_snapshot() {
   var canvas = document.getElementById("_imageData")
   var img = document.createElement("img");
   img.setAttribute("src", canvas.toDataURL());
   document.getElementById("picture-container").appendChild(img);
-}
+}*/
