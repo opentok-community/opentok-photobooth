@@ -1,0 +1,5 @@
+module.exports['ENV'] = {
+  OPENTOK_API_KEY: 'INSERT',
+  OPENTOK_SESSION_ID: 'INSERT',
+  OPENTOK_TOKEN: 'INSERT'
+}
