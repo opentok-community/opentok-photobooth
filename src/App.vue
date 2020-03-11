@@ -44,14 +44,21 @@
                 </v-list-item-content>
               </v-list-item>
               <v-card-text>
-                <div id="videos" style="position:relative">
+                <div id="videos" align="center" justify="center">
                   <div id="subscriber"></div>
-                  <div id="publisher" style="position:relative"><div v-if="counter != 10" style="position:absolute;top:0px;font-size:150px;z-index:1000;">{{ counter }}</div></div>
-                  
+                  <div id="publisher">
+                    <v-overlay
+                      :absolute="true"
+                      :value="counter != 10"
+                    >
+                      <div style="font-size:150px;">{{ counter }}</div>
+                    </v-overlay>
+                    <!--<div v-if="counter != 10" style="position:absolute;top:0px;font-size:150px;z-index:1000;">{{ counter }}</div>-->
+                  </div>
                 </div>
               </v-card-text>
               <v-card-actions>
-                <v-btn @click="analyze()" v-if="manual==true" color="orange" text>Analyze</v-btn>
+                <v-btn @click="analyze()" v-if="manual==true" color="orange" text>Snap</v-btn>
               </v-card-actions>
             </v-card>
           </v-container>
@@ -60,6 +67,18 @@
           <canvas id="_imageData" ref="_imageData"></canvas>-->
       </v-row>
     </v-content>
+    <v-snackbar
+      v-model="snackbar"
+    >
+      {{ snackbar_message }}
+      <v-btn
+        color="pink"
+        text
+        @click="snackbar = false"
+      >
+        Close
+      </v-btn>
+    </v-snackbar>
   </v-app>
 </template>
 
@@ -68,6 +87,7 @@
 
 import OT from '@opentok/client'
 import { ENV } from './config'
+//import axios from "axios"
 
 function handleError(error) {
   if (error) {
@@ -92,7 +112,9 @@ export default {
     publisher: null,
     counter: 10,
     timerId: 0,
-    manual: true
+    manual: true,
+    snackbar: false,
+    snackbar_message: ''
   }),
 
   mounted(){
@@ -177,7 +199,51 @@ export default {
       setTimeout(() => { 
         clearInterval(this.timerId); 
         this.counter = 10
-        this.images.push({id:this.images.length+1, dataurl: 'data:image/png;base64,'+ this.publisher.getImgData()})
+
+        
+        //this.images.push({id:this.images.length+1, dataurl: 'data:image/png;base64,'+ this.publisher.getImgData()})
+        let imageData = this.publisher.getImgData()
+        let blob = this.dataURItoBlob('data:image/png;base64,'+ imageData)
+
+        //Evaluates image emotion in azure cognitive face service
+        const xhr = new XMLHttpRequest()
+        xhr.open('POST',`${this.azure_face_api_endpoint}face/v1.0/detect?returnFaceId=true&returnFaceLandmarks=false&returnFaceAttributes=emotion`)
+        xhr.onreadystatechange = () => {
+          let image = imageData
+          if (xhr.readyState === 4) {
+            //Response from azure
+            console.log(xhr.response)
+            let response = xhr.response[0]
+            if(response !==null && response !== undefined){
+              //Evalutes the face emotion happiness
+              if(response.faceId !== null && response.faceId !== undefined){
+                console.log(response.faceId)
+                if(response.faceAttributes !== null && response.faceAttributes !== undefined){
+                  if(response.faceAttributes.emotion !== null && response.faceAttributes.emotion !== undefined){
+                    //Emotion is present, so we evaluate happiness factor (between 0 and 1) if happiness is > 0.5 we take the snap
+                    if(response.faceAttributes.emotion.happiness !== null && response.faceAttributes.emotion.happiness !== undefined){
+                      if(response.faceAttributes.emotion.happiness >= 0.5){
+                        //take the snap and put it in image array
+                        this.images.push({id:this.images.length+1, dataurl: 'data:image/png;base64,'+ image})
+                      } else {
+                        this.snackbar = true
+                        this.snackbar_message = 'Smiling is a requirement. Smile and we take your photo'
+                      }
+                    }
+                  }
+                }
+              }
+            }else{
+              this.snackbar_message = 'Connection error'
+            }
+          }
+        }
+        xhr.responseType = 'json';
+        xhr.setRequestHeader('Content-Type', 'application/octet-stream');
+        xhr.setRequestHeader("Ocp-Apim-Subscription-Key", this.azure_face_api_subscription_key);
+        xhr.send(blob);
+        
+
       }, 10000);
     },
     handleError(error) {
