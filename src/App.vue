@@ -173,9 +173,7 @@
 
 import OT from '@opentok/client'
 import { ENV } from './config'
-//import axios from "axios"
-//const Nexmo = require("nexmo")
-import Nexmo from 'nexmo'
+import axios from "axios"
 
 function handleError(error) {
   if (error) {
@@ -195,10 +193,7 @@ export default {
     opentok_token: (ENV.OPENTOK_TOKEN)?ENV.OPENTOK_TOKEN:'',
     azure_face_api_subscription_key: (ENV.AZURE_FACE_API_SUBSCRIPTION_KEY)?ENV.AZURE_FACE_API_SUBSCRIPTION_KEY:'',
     azure_face_api_endpoint: (ENV.AZURE_FACE_API_ENDPOINT)?ENV.AZURE_FACE_API_ENDPOINT:'',
-    nexmo_api_key: (ENV.NEXMO_API_KEY)?ENV.NEXMO_API_KEY:'',
-    nexmo_api_secret: (ENV.NEXMO_API_SECRET)?ENV.NEXMO_API_SECRET:'',
-    nexmo_application_id: (ENV.NEXMO_APPLICATION_ID)?ENV.NEXMO_APPLICATION_ID:'',
-    nexmo_privatekey_path: (ENV.NEXMO_PRIVATEKEY_PATH)?ENV.NEXMO_PRIVATEKEY_PATH:'',
+    site_url: (ENV.SITE_URL)?ENV.SITE_URL:'',
     streams: [],
     images:[],
     publisher: null,
@@ -413,33 +408,26 @@ export default {
         this.snackbar = true
       } else {
         //Send MMS
-        const nexmo = new Nexmo({
-          apiKey: this.nexmo_api_key,
-          apiSecret: this.nexmo_api_secret,
-          applicationId: this.nexmo_application_id,
-          privateKey: this.nexmo_privatekey_path
+        axios.post(this.site_url+'/send-mms', {
+          phone: this.phone,
+          image: this.sel2next
         })
-        nexmo.channel.send(
-          { "type": "mms", "number": this.phone },
-          { "type": "mms", "number": "Nexmo" },
-          {
-            "content": {
-              "type": "image",
-              "image": { "url":  this.sel2next }
-            }
-          },
-          (err, data) => { 
+        .then((response) => {
+          console.log(response);
+          if(response.data.status=="success"){
+            this.snackbar_message = "Your message was sent successfully"
+            this.snackbar = true
             this.nexmo_dialog = false
-            if(err){
-              console.log(err)
-              this.snackbar_message = err.body.title
-              this.snackbar = true
-            } else {
-              console.log(data)
-            }
-            /*console.log(data.message_uuid);*/ 
+          } else {
+            this.snackbar_message = "Error: "+ response.data.message
+            this.snackbar = true
           }
-        )
+        })
+        .catch((error) => {
+          console.log(error);
+          this.snackbar_message = error
+          this.snackbar = true
+        })
       }
     },
     handleError(error) {
