@@ -16,14 +16,14 @@
             <v-list-item>
               <v-list-item-content>
                 <v-list-item-title class="title">
-                  <v-btn @click="nexmo_dialog=true">Text Me My Pic!</v-btn>
+                  <v-btn @click="nexmo_dialog=true; getStripImage()">SMS Snap</v-btn>
                 </v-list-item-title>
               </v-list-item-content>
             </v-list-item>
             <!--<v-list-item>
               <v-list-item-content>
                 <v-list-item-title class="title">
-                  Your Pics
+                  Your pics
                 </v-list-item-title>
               </v-list-item-content>
             </v-list-item>
@@ -33,7 +33,7 @@
                   <template v-slot:activator="{ on }">
                     <img style="width:185px; height:auto;" :id="'snap_' + image.id" :src="image.dataurl" v-on="on" @click="forceFileDownload(image.id)"/>
                   </template>
-                  <span>Download Picture</span>
+                  <span>Download picture</span>
                 </v-tooltip>
               </v-list-item-content>
             </v-list-item>
@@ -48,7 +48,7 @@
                       <template v-slot:activator="{ on }">
                         <img style="width:185px; height:auto;" :id="'filtered_' + filteredImage.id" :src="filteredImage.dataurl" v-on="on" @click="forceFileDownload(filteredImage.id,'filtered')"/>
                       </template>
-                      <span>Download Picture</span>
+                      <span>Download picture</span>
                     </v-tooltip>
                   </v-list-item-content>
                 </v-list-item>
@@ -72,8 +72,7 @@
             >
               <v-list-item three-line>
                 <v-list-item-content>
-                  <v-list-item-title class="headline mb-1">Doofenshmirtz's Picturinator 2000
-</v-list-item-title>
+                  <v-list-item-title class="headline mb-1">Camera</v-list-item-title>
                 </v-list-item-content>
               </v-list-item>
               <v-card-text>
@@ -115,15 +114,15 @@
                   <template v-slot:activator="{ on }">
                     <img style="width:185px; height:auto;" :id="'snap_' + image.id" :src="image.dataurl" v-on="on" @click="forceFileDownload(image.id)"/>
                   </template>
-                  <span>Download Picture</span>
+                  <span>Download picture</span>
                 </v-tooltip>
               </v-col>
-              <v-col v-for="filteredImage in filteredImages" :key="filteredImage.id" cols="2">
+              <v-col v-for="filteredImage in filteredImages" :key="'key_'+filteredImage.id" cols="2">
                 <v-tooltip top v-if="filters">
                   <template v-slot:activator="{ on }">
                     <img style="width:185px; height:auto;" :id="'filtered_' + filteredImage.id" :src="filteredImage.dataurl" v-on="on" @click="forceFileDownload(filteredImage.id,'filtered')"/>
                   </template>
-                  <span>Download Picture</span>
+                  <span>Download picture</span>
                 </v-tooltip>
               </v-col>
             </v-row>
@@ -138,7 +137,7 @@
                 </v-card-text>
                 <v-card-actions>
                   <v-spacer></v-spacer>
-                  <v-btn color="green darken-1" text @click="dialog = false; manual = false; ">I don't like any 😩</v-btn>
+                  <v-btn color="green darken-1" text @click="dialog = false; manual = false; ">I dont like any</v-btn>
                   <!--<v-btn color="green darken-1" text @click="dialog = false; manual = true; ">Yes</v-btn>-->
                 </v-card-actions>
               </v-card>
@@ -153,7 +152,7 @@
                     label="Enter your phone"
                     required
                   ></v-text-field>
-                  <p>Select an image</p>
+                  <p>Select one of the next images</p>
                   <img
                     v-for="image in images" 
                     :key="'snap_key_'+image.id" 
@@ -171,6 +170,13 @@
                     :src="filteredImage.dataurl" 
                     :class="'image-selection'+((('snapfiltered_preview_' + filteredImage.id) == self2nextAlias)?' choosenone':'')"
                     @click="selected2Nexmo(filteredImage.id, 'filtered'); self2nextAlias='snapfiltered_preview_' + filteredImage.id;"
+                  />
+                  <img  
+                    style="cursor:pointer;width:300px; height:auto;" 
+                    id="strip_image" 
+                    :src="stripedimage" 
+                    :class="'image-selection'+((('striped') == self2nextAlias)?' choosenone':'')"
+                    @click="selected2Nexmo('striped', 'striped'); self2nextAlias='striped';"
                   />
                 </v-card-text>
                 <v-card-actions>
@@ -245,7 +251,8 @@ export default {
     nexmo_dialog: false,
     phone:'',
     sel2next: null,
-    self2nextAlias: ''
+    self2nextAlias: '',
+    stripedimage: ''
   }),
 
   mounted(){
@@ -434,7 +441,10 @@ export default {
       if(filtered == undefined)
         this.sel2next = this.images[imgid-1].dataurl
       else
-        this.sel2next = this.filteredImages[imgid-1].dataurl
+        if(filtered == 'striped')
+          this.sel2next = this.stripedimage
+        else
+          this.sel2next = this.filteredImages[imgid-1].dataurl
     },
     sendMMS(){
       if(this.phone == '' || this.self2nextAlias == ''){
@@ -463,6 +473,22 @@ export default {
           this.snackbar = true
         })
       }
+    },
+    getStripImage(){
+      let x_increment = 640
+      let y = 0
+      let x = -640
+      let pic_number = 4
+      var canvas = document.createElement("canvas")
+      canvas.width = 640 * pic_number
+      canvas.height = 480
+      var ctx = canvas.getContext("2d")
+      for(let f=0; f<this.filteredImages.length; f++) {
+        x = x + x_increment
+        let img = document.getElementById("filtered_" + this.filteredImages[f].id)
+        ctx.drawImage(img, x, y)
+      }
+      this.stripedimage = canvas.toDataURL()
     },
     handleError(error) {
       if (error) {
