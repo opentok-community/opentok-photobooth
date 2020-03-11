@@ -8,7 +8,14 @@
               <v-list-item-content>
                 <v-list-item-title class="title">
                   Options
-                  <v-switch v-model="manual" :label="`Manual?`"></v-switch>
+                  <v-switch
+                    v-model="manual"
+                    :label="`Manual?`"
+                  ></v-switch>
+                  <v-switch
+                    v-model="filters"
+                    :label="`With filters?`"
+                  ></v-switch>
                 </v-list-item-title>
               </v-list-item-content>
             </v-list-item>
@@ -19,14 +26,55 @@
                 </v-list-item-title>
               </v-list-item-content>
             </v-list-item>
-            <v-list-item v-for="image in images" :key="image.id">
+            <v-list-item
+              v-for="image in images"
+              :key="image.id"
+            >
               <v-list-item-content>
                 <v-tooltip top>
                   <template v-slot:activator="{ on }">
-                    <img :src="image.dataurl" v-on="on" @click="forceFileDownload(image.id)"/>
+                    <img
+                      :id="'snap_' + image.id"
+                      :src="image.dataurl"
+                      v-on="on"
+                      @click="forceFileDownload(image.id)"
+                    />
                   </template>
                   <span>Download picture</span>
                 </v-tooltip>
+              </v-list-item-content>
+            </v-list-item>
+            <v-list-item v-if="filters">
+              <v-list-item-content>
+                <v-list-item-title class="title">
+                  With Filters
+                </v-list-item-title>
+                <v-list-item
+                  v-for="filteredImage in filteredImages"
+                  :key="filteredImage.id"
+                >
+                  <v-list-item-content>
+                    <v-tooltip top>
+                      <template v-slot:activator="{ on }">
+                        <img
+                          style="width:185px; height:auto;"
+                          :id="'filtered_' + filteredImage.id"
+                          :src="filteredImage.dataurl"
+                          v-on="on"
+                          @click="forceFileDownload(filteredImage.id,'filtered')"
+                        />
+                      </template>
+                      <span>Download picture</span>
+                    </v-tooltip>
+                  </v-list-item-content>
+                </v-list-item>
+                <v-list-item>
+                  <v-list-item-content>
+                    <v-list-item-title class="title">
+                      <v-btn @click="downloadImages()">Download Images</v-btn>
+                    </v-list-item-title>
+                  </v-list-item-content>
+                </v-list-item>
               </v-list-item-content>
             </v-list-item>
           </v-navigation-drawer>
@@ -44,7 +92,11 @@
                 </v-list-item-content>
               </v-list-item>
               <v-card-text>
-                <div id="videos" align="center" justify="center">
+                <div
+                  id="videos"
+                  align="center"
+                  justify="center"
+                >
                   <div id="subscriber"></div>
                   <div id="publisher">
                     <v-overlay
@@ -58,18 +110,21 @@
                 </div>
               </v-card-text>
               <v-card-actions>
-                <v-btn @click="analyze()" v-if="manual==true" color="orange" text>Snap</v-btn>
+                <v-btn
+                  @click="analyze()"
+                  v-if="manual==true"
+                  color="orange"
+                  text
+                >Snap</v-btn>
               </v-card-actions>
             </v-card>
           </v-container>
         </v-col>
-          <!--<video id="_webcam" ref="_webcam" style="display: none;" playsinline></video>
+        <!--<video id="_webcam" ref="_webcam" style="display: none;" playsinline></video>
           <canvas id="_imageData" ref="_imageData"></canvas>-->
       </v-row>
     </v-content>
-    <v-snackbar
-      v-model="snackbar"
-    >
+    <v-snackbar v-model="snackbar">
       {{ snackbar_message }}
       <v-btn
         color="pink"
@@ -85,8 +140,8 @@
 <script>
 //const OT = require('@opentok/client')
 
-import OT from '@opentok/client'
-import { ENV } from './config'
+import OT from "@opentok/client";
+import { ENV } from "./config";
 //import axios from "axios"
 
 function handleError(error) {
@@ -96,42 +151,51 @@ function handleError(error) {
 }
 
 export default {
-  name: 'App',
+  name: "App",
 
   components: {},
 
   data: () => ({
     //
-    opentok_api_key: (ENV.OPENTOK_API_KEY)?ENV.OPENTOK_API_KEY:'',
-    opentok_session_id: (ENV.OPENTOK_SESSION_ID)?ENV.OPENTOK_SESSION_ID:'',
-    opentok_token: (ENV.OPENTOK_TOKEN)?ENV.OPENTOK_TOKEN:'',
-    azure_face_api_subscription_key: (ENV.AZURE_FACE_API_SUBSCRIPTION_KEY)?ENV.AZURE_FACE_API_SUBSCRIPTION_KEY:'',
-    azure_face_api_endpoint: (ENV.AZURE_FACE_API_ENDPOINT)?ENV.AZURE_FACE_API_ENDPOINT:'',
+    opentok_api_key: ENV.OPENTOK_API_KEY ? ENV.OPENTOK_API_KEY : "",
+    opentok_session_id: ENV.OPENTOK_SESSION_ID ? ENV.OPENTOK_SESSION_ID : "",
+    opentok_token: ENV.OPENTOK_TOKEN ? ENV.OPENTOK_TOKEN : "",
+    azure_face_api_subscription_key: ENV.AZURE_FACE_API_SUBSCRIPTION_KEY
+      ? ENV.AZURE_FACE_API_SUBSCRIPTION_KEY
+      : "",
+    azure_face_api_endpoint: ENV.AZURE_FACE_API_ENDPOINT
+      ? ENV.AZURE_FACE_API_ENDPOINT
+      : "",
     streams: [],
-    images:[],
+    images: [],
     publisher: null,
     counter: 10,
     timerId: 0,
     manual: true,
     snackbar: false,
-    snackbar_message: ''
+    snackbar_message: "",
+    filters: false,
+    filteredImages: []
   }),
 
-  mounted(){
-    this.initializeSession()
+  mounted() {
+    this.initializeSession();
   },
 
   methods: {
-    add_snapshot(){
-      alert("Hi")
+    add_snapshot() {
+      alert("Hi");
     },
     async initializeSession() {
-      var session = OT.initSession(this.opentok_api_key, this.opentok_session_id)
+      var session = OT.initSession(
+        this.opentok_api_key,
+        this.opentok_session_id
+      );
 
       // Subscribe to a newly created streams and add
       // them to our collection of active streams.
-      session.on("streamCreated", (event) => {
-        console.log("Hi")
+      session.on("streamCreated", event => {
+        console.log("Hi");
         this.streams.push(event.stream);
         session.subscribe(
           event.stream,
@@ -144,7 +208,7 @@ export default {
       });
 
       // Remove streams from our array when they are destroyed.
-      session.on("streamDestroyed", function (event) {
+      session.on("streamDestroyed", function(event) {
         this.streams = this.streams.filter(f => f.id !== event.stream.id);
       });
 
@@ -160,7 +224,7 @@ export default {
       );
 
       // Connect to the session
-      session.connect(this.opentok_token, (error)=>{
+      session.connect(this.opentok_token, error => {
         // If the connection is successful, initialize a publisher and publish to the session
         if (error) {
           handleError(error);
@@ -189,61 +253,76 @@ export default {
       }
 
       return new Blob([ia], { type: mimeString });
-
     },
-    analyze(){
+    analyze() {
       //console.log(this.publisher.getImgData())
       //this.imagen = 'data:image/png;base64,'+ this.publisher.getImgData()
       //console.log(this.dataURItoBlob(this.imagen))
-      this.timerId = setInterval(() => this.counter -= 1, 1000);
-      setTimeout(() => { 
-        clearInterval(this.timerId); 
-        this.counter = 10
+      this.timerId = setInterval(() => (this.counter -= 1), 1000);
+      setTimeout(() => {
+        clearInterval(this.timerId);
+        this.counter = 10;
 
-        
         //this.images.push({id:this.images.length+1, dataurl: 'data:image/png;base64,'+ this.publisher.getImgData()})
-        let imageData = this.publisher.getImgData()
-        let blob = this.dataURItoBlob('data:image/png;base64,'+ imageData)
+        let imageData = this.publisher.getImgData();
+        let blob = this.dataURItoBlob("data:image/png;base64," + imageData);
 
         //Evaluates image emotion in azure cognitive face service
-        const xhr = new XMLHttpRequest()
-        xhr.open('POST',`${this.azure_face_api_endpoint}face/v1.0/detect?returnFaceId=true&returnFaceLandmarks=false&returnFaceAttributes=emotion`)
+        const xhr = new XMLHttpRequest();
+        xhr.open(
+          "POST",
+          `${this.azure_face_api_endpoint}face/v1.0/detect?returnFaceId=true&returnFaceLandmarks=false&returnFaceAttributes=emotion`
+        );
         xhr.onreadystatechange = () => {
-          let image = imageData
+          let image = imageData;
           if (xhr.readyState === 4) {
             //Response from azure
-            console.log(xhr.response)
-            let response = xhr.response[0]
-            if(response !==null && response !== undefined){
+            console.log(xhr.response);
+            let response = xhr.response[0];
+            if (response !== null && response !== undefined) {
               //Evalutes the face emotion happiness
-              if(response.faceId !== null && response.faceId !== undefined){
-                console.log(response.faceId)
-                if(response.faceAttributes !== null && response.faceAttributes !== undefined){
-                  if(response.faceAttributes.emotion !== null && response.faceAttributes.emotion !== undefined){
+              if (response.faceId !== null && response.faceId !== undefined) {
+                console.log(response.faceId);
+                if (
+                  response.faceAttributes !== null &&
+                  response.faceAttributes !== undefined
+                ) {
+                  if (
+                    response.faceAttributes.emotion !== null &&
+                    response.faceAttributes.emotion !== undefined
+                  ) {
                     //Emotion is present, so we evaluate happiness factor (between 0 and 1) if happiness is > 0.5 we take the snap
-                    if(response.faceAttributes.emotion.happiness !== null && response.faceAttributes.emotion.happiness !== undefined){
-                      if(response.faceAttributes.emotion.happiness >= 0.5){
+                    if (
+                      response.faceAttributes.emotion.happiness !== null &&
+                      response.faceAttributes.emotion.happiness !== undefined
+                    ) {
+                      if (response.faceAttributes.emotion.happiness >= 0.5) {
                         //take the snap and put it in image array
-                        this.images.push({id:this.images.length+1, dataurl: 'data:image/png;base64,'+ image})
+                        this.images.push({
+                          id: this.images.length + 1,
+                          dataurl: "data:image/png;base64," + image
+                        });
                       } else {
-                        this.snackbar = true
-                        this.snackbar_message = 'Smiling is a requirement. Smile and we take your photo'
+                        this.snackbar = true;
+                        this.snackbar_message =
+                          "Smiling is a requirement. Smile and we take your photo";
                       }
                     }
                   }
                 }
               }
-            }else{
-              this.snackbar_message = 'Connection error'
+            } else {
+              this.snackbar_message = "Connection error";
             }
           }
-        }
-        xhr.responseType = 'json';
-        xhr.setRequestHeader('Content-Type', 'application/octet-stream');
-        xhr.setRequestHeader("Ocp-Apim-Subscription-Key", this.azure_face_api_subscription_key);
+        };
+        xhr.responseType = "json";
+        xhr.setRequestHeader("Content-Type", "application/octet-stream");
+        xhr.setRequestHeader(
+          "Ocp-Apim-Subscription-Key",
+          this.azure_face_api_subscription_key
+        );
         xhr.send(blob);
-        
-
       }, 10000);
     },
     handleError(error) {
@@ -251,15 +330,94 @@ export default {
         console.log(error.message);
       }
     },
-    forceFileDownload(index){
-      let image_file = this.dataURItoBlob(this.images[index-1].dataurl)
-      const url = window.URL.createObjectURL(image_file)
-      const link = document.createElement('a')
-      link.href = url
-      link.setAttribute('download', 'file.png') //or any other extension
-      link.click()
+    forceFileDownload(index, place) {
+      let imgs = null;
+      if (place == undefined) imgs = this.images;
+      else imgs = this.filteredImages;
+      let image_file = this.dataURItoBlob(imgs[index - 1].dataurl);
+      const url = window.URL.createObjectURL(image_file);
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", "snap_" + index + ".png"); //or any other extension
+      link.click();
+    },
+    downloadImages() {
+      for (let i = 0; i < this.images.length; i++) {
+        this.forceFileDownload(this.images[i].id);
+      }
+      for (let f = 0; f < this.filteredImages.length; f++) {
+        this.forceFileDownload(this.filteredImages[f].id, "filtered");
+      }
+    },
+    imgwfilter(img, filter, density) {
+      //console.log(img)
+
+      let r = (filter.r * density + 255 * (100 - density)) / 25500;
+      let g = (filter.g * density + 255 * (100 - density)) / 25500;
+      let b = (filter.b * density + 255 * (100 - density)) / 25500;
+
+      var canvas = document.createElement("canvas");
+      //canvas.width = img.width;
+      //canvas.height = img.height;
+      canvas.width = 640;
+      canvas.height = 480;
+      var ctx = canvas.getContext("2d");
+      ctx.drawImage(img, 0, 0);
+
+      //Change pixel color tone
+      var imageData = ctx.getImageData(0, 0, 640, 480);
+      var data = imageData.data;
+      for (var i = 0; i < data.length; i += 4) {
+        var luma = 0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2];
+        data[i] = Math.round(r * luma);
+        data[i + 1] = Math.round(g * luma);
+        data[i + 2] = Math.round(b * luma);
+      }
+
+      //Rewrite data in canvas
+      ctx.putImageData(imageData, 0, 0);
+
+      //Add filtered images to document
+      this.filteredImages.push({
+        id: this.filteredImages.length + 1,
+        dataurl: canvas.toDataURL()
+      });
+    }
+  },
+  watch: {
+    filters(val) {
+      if (val) {
+        console.log(this.images.length);
+        //If filters are enabled, generate 4 images with effects
+        this.filteredImages = [];
+        if (this.images.length > 0) {
+          //Grayscale
+          this.imgwfilter(
+            document.getElementById("snap_1"),
+            { r: 0xff, g: 0xff, b: 0xff },
+            50
+          );
+          //Sepia
+          this.imgwfilter(
+            document.getElementById("snap_1"),
+            { r: 0xac, g: 0x7a, b: 0x33 },
+            30
+          );
+          //Green
+          this.imgwfilter(
+            document.getElementById("snap_1"),
+            { r: 0x19, g: 0xc9, b: 0x19 },
+            30
+          );
+          //Blue
+          this.imgwfilter(
+            document.getElementById("snap_1"),
+            { r: 0x1d, g: 0x35, b: 0xea },
+            30
+          );
+        }
+      }
     }
   }
-
 };
 </script>
