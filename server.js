@@ -57,7 +57,7 @@ app.post('/send-mms',function(req, res){
           //console.log(data.message_uuid);
         }
       );*/
-      nexmo.message.sendSms("19899846354", phone, "Opentok-Nexmo, Your snap is ready: " + config.SITE_URL+'/snaps/'+filename, (err, responseData) => {
+      nexmo.message.sendSms(config.NEXMO_NUMBER, phone, "Opentok-Nexmo, Your snap is ready: " + config.SITE_URL+'/snaps/'+filename, (err, responseData) => {
         if (err) {
             console.log(err);
             if(err.body.title!==null && err.body.title!==undefined)
