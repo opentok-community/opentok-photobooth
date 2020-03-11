@@ -7,5 +7,6 @@ module.exports['ENV'] = {
   NEXMO_API_SECRET: 'INSERT YOURSI',
   NEXMO_APPLICATION_ID: 'INSERT YOURS',
   NEXMO_PRIVATEKEY_PATH: './private.key',
+  NEXMO_NUMBER: "INSERT YOURS",
   SITE_URL: 'https://domain.ext'
 }
