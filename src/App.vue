@@ -55,7 +55,13 @@
             </v-card>
             <v-row>
               <v-col cols="10" offset-sm="1">
-                <h2 style="text-align:center;">Your Pics</h2>
+                <v-img
+                  style="text-align:center;"
+                  :src="require('./assets/agents.png')"
+                  class="title"
+                  contain
+                  height="50"
+                />
               </v-col>
             </v-row>
             <v-divider></v-divider>
