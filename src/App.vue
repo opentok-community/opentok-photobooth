@@ -3,62 +3,31 @@
     <v-content>
       <v-row>
         <v-col cols="2">
-          <v-navigation-drawer permanent>
-            <v-list-item>
-              <v-list-item-content>
-                <v-list-item-title class="title">
-                  Options
-                  <v-switch v-model="manual" :label="`${manual_label}`"></v-switch>
-                  <v-switch v-model="filters" :label="`With filters?`"></v-switch>
-                </v-list-item-title>
-              </v-list-item-content>
-            </v-list-item>
-            <v-list-item>
-              <v-list-item-content>
-                <v-list-item-title class="title">
-                  <v-btn @click="nexmo_dialog=true; getStripImage()">SMS Snap</v-btn>
-                </v-list-item-title>
-              </v-list-item-content>
-            </v-list-item>
-            <!--<v-list-item>
-              <v-list-item-content>
-                <v-list-item-title class="title">Your pics</v-list-item-title>
-              </v-list-item-content>
-            </v-list-item>
-            <v-list-item v-for="image in images" :key="image.id">
-              <v-list-item-content>
-                <v-tooltip top>
-                  <template v-slot:activator="{ on }">
-                    <img style="width:185px; height:auto;" :id="'snap_' + image.id" :src="image.dataurl" v-on="on" @click="forceFileDownload(image.id)"/>
-                  </template>
-                  <span>Download picture</span>
-                </v-tooltip>
-              </v-list-item-content>
-            </v-list-item>
-            <v-list-item v-if="filters">
-              <v-list-item-content>
-                <v-list-item-title class="title">
-                  With Filters
-                </v-list-item-title>
-                <v-list-item v-for="filteredImage in filteredImages" :key="filteredImage.id">
-                  <v-list-item-content>
-                    <v-tooltip top>
-                      <template v-slot:activator="{ on }">
-                        <img style="width:185px; height:auto;" :id="'filtered_' + filteredImage.id" :src="filteredImage.dataurl" v-on="on" @click="forceFileDownload(filteredImage.id,'filtered')"/>
-                      </template>
-                      <span>Download picture</span>
-                    </v-tooltip>
-                  </v-list-item-content>
-                </v-list-item>
-              </v-list-item-content>
-            </v-list-item>-->
-            <v-list-item v-if="filters">
-              <v-list-item-content>
-                <v-list-item-title class="title">
-                  <v-btn @click="downloadImages()">Download Images</v-btn>
-                </v-list-item-title>
-              </v-list-item-content>
-            </v-list-item>
+          <v-navigation-drawer permanent class="options">
+            <div style="padding: 10px">
+              <v-img :src="require('./assets/manual.png')" class="title" contain />
+              <v-switch v-model="manual" />
+
+              <v-img :src="require('./assets/filter.png')" class="title" contain />
+              <v-switch v-model="filters"></v-switch>
+
+              <v-btn
+                @click="nexmo_dialog=true; getStripImage()"
+                style="background-color:inherit !important; padding: 0 !important;"
+              >
+                <img src="/images/sms.png" height="40px" />
+              </v-btn>
+
+              <br />
+              <br />
+
+              <v-btn
+                @click="downloadImages()"
+                style="background-color:inherit !important; padding: 0 !important;"
+              >
+                <img src="/images/download.png" height="40px" />
+              </v-btn>
+            </div>
           </v-navigation-drawer>
         </v-col>
         <v-col cols="10">
@@ -243,7 +212,6 @@ export default {
       ? ENV.AZURE_FACE_API_ENDPOINT
       : "",
     site_url: ENV.SITE_URL ? ENV.SITE_URL : "",
-    streams: [],
     images: [],
     publisher: null,
     counter: 10,
@@ -277,26 +245,6 @@ export default {
         this.opentok_api_key,
         this.opentok_session_id
       );
-
-      // Subscribe to a newly created streams and add
-      // them to our collection of active streams.
-      session.on("streamCreated", event => {
-        console.log("Hi");
-        this.streams.push(event.stream);
-        session.subscribe(
-          event.stream,
-          "subscriber",
-          {
-            insertMode: "append"
-          },
-          handleError
-        );
-      });
-
-      // Remove streams from our array when they are destroyed.
-      session.on("streamDestroyed", function(event) {
-        this.streams = this.streams.filter(f => f.id !== event.stream.id);
-      });
 
       // Create a publisher
       this.publisher = OT.initPublisher(
@@ -631,11 +579,9 @@ export default {
     },
     manual(val) {
       if (val) {
-        this.manual_label = "Manual";
         //If Manual is selected stop the analyzeAuto function
         clearInterval(this.timerId);
       } else {
-        this.manual_label = "Auto";
         this.analyzeAuto();
       }
     }
@@ -651,6 +597,13 @@ export default {
 .camera {
   background-color: rgba(255, 255, 255, 0.7) !important;
   border: 5px solid rebeccapurple !important;
+  border-radius: 20px !important;
+}
+.options {
+  background-color: rgba(128, 101, 122, 0.5) !important;
+  border: 5px solid rebeccapurple !important;
+
+  border-radius: 15px !important;
 }
 .title {
   margin-top: 15px;
@@ -662,8 +615,8 @@ export default {
 .doof {
   height: 300px;
   position: relative;
-  top: -250px;
-  left: 650px;
+  top: -280px;
+  left: 590px;
   margin: -300px;
 }
 img.smile-images {
