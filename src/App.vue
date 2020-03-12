@@ -76,6 +76,7 @@
                     <!--<div v-if="counter != 10" style="position:absolute;top:0px;font-size:150px;z-index:1000;">{{ counter }}</div>-->
                   </div>
                 </div>
+                <img class="doof" src="/images/doof.png" />
               </v-card-text>
               <v-card-actions>
                 <v-btn @click="analyze()" v-if="manual == true" text class="analyze">
@@ -83,7 +84,6 @@
                 </v-btn>
               </v-card-actions>
             </v-card>
-
             <v-row>
               <v-col cols="10" offset-sm="1">
                 <h2 style="text-align:center;">Your Pics</h2>
@@ -658,6 +658,13 @@ export default {
 .analyze {
   width: 100%;
   margin-bottom: 15px;
+}
+.doof {
+  height: 300px;
+  position: relative;
+  top: -250px;
+  left: 650px;
+  margin: -300px;
 }
 img.smile-images {
   box-shadow: 5px 10px 18px silver;
