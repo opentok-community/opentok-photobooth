@@ -67,19 +67,17 @@
                 <img
                   v-for="image in images"
                   :key="image.id"
-                  style="width:135px; height:auto;"
+                  style="width:135px; height:auto; cursor:pointer;"
                   :id="'snap_' + image.id"
                   :src="image.dataurl"
-                  v-on="on"
                   @click="forceFileDownload(image.id)"
                 />
                 <img
                   v-for="filteredImage in filteredImages"
                   :key="'key_'+filteredImage.id"
-                  style="width:135px; height:auto;"
+                  style="width:135px; height:auto; cursor:pointer;"
                   :id="'filtered_' + filteredImage.id"
                   :src="filteredImage.dataurl"
-                  v-on="on"
                   @click="forceFileDownload(filteredImage.id,'filtered')"
                 />
               </v-row>
@@ -105,7 +103,7 @@
                     <v-btn
                       color="green darken-1"
                       text
-                      @click="dialog = false; manual = false; "
+                      @click="dialog = false; manual = false; images = []; filteredImages = [];"
                     >I dont like any</v-btn>
                     <!--<v-btn color="green darken-1" text @click="dialog = false; manual = true; ">Yes</v-btn>-->
                   </v-card-actions>
@@ -277,6 +275,9 @@ export default {
       return new Blob([ia], { type: mimeString });
     },
     analyze() {
+      this.images = []
+      this.filteredImages = []
+      this.filters = false
       //console.log(this.publisher.getImgData())
       //this.imagen = 'data:image/png;base64,'+ this.publisher.getImgData()
       //console.log(this.dataURItoBlob(this.imagen))
@@ -348,6 +349,7 @@ export default {
       }, 6000);
     },
     analyzeAuto() {
+      this.filters = false
       //Each second an image is sent to azure to analyze if smile is present
       this.timerId = setInterval(() => {
         console.log("Intent");
@@ -415,7 +417,7 @@ export default {
       this.images = [];
       this.images.push({
         id: this.images.length + 1,
-        dataurl: "data:image/png;base64," + image.dataurl
+        dataurl: image.dataurl
       });
       this.dialog = false;
     },
