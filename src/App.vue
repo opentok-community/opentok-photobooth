@@ -13,7 +13,7 @@
 
               <v-btn
                 @click="nexmo_dialog=true; getStripImage()"
-                style="background-color:inherit !important; padding: 0 !important;"
+                style="background-color:inherit !important; padding: 0 !important; text-align:center;"
               >
                 <img src="/images/sms.png" height="40px" />
               </v-btn>
@@ -30,16 +30,15 @@
             </div>
           </v-navigation-drawer>
         </v-col>
-        <v-col cols="10">
+        <v-col cols="8">
           <v-container>
             <v-card class="mx-auto camera" max-width="500" outlined>
               <v-img :src="require('./assets/logo.png')" class="title" contain height="50" />
 
               <v-card-text>
                 <div id="videos" align="center" justify="center">
-                  <div id="subscriber"></div>
                   <div id="publisher">
-                    <v-overlay :absolute="true" :value="counter != 10">
+                    <v-overlay :absolute="true" :value="counter != 6">
                       <div style="font-size:150px;">{{ counter }}</div>
                     </v-overlay>
                     <!--<div v-if="counter != 10" style="position:absolute;top:0px;font-size:150px;z-index:1000;">{{ counter }}</div>-->
@@ -53,132 +52,115 @@
                 </v-btn>
               </v-card-actions>
             </v-card>
-            <v-row>
-              <v-col cols="10" offset-sm="1">
-                <v-img
-                  style="text-align:center;"
-                  :src="require('./assets/agents.png')"
-                  class="title"
-                  contain
-                  height="50"
-                />
-              </v-col>
-            </v-row>
-            <v-divider></v-divider>
-            <v-row>
-              <v-col cols="2" offset-sm="1">
-                <h4 v-if="images.length>0" style="text-align:center;">Original</h4>
-              </v-col>
-              <v-col cols="8">
-                <h4 v-if="filters" style="text-align:center;">With Filters</h4>
-              </v-col>
-            </v-row>
-            <v-row>
-              <v-col v-for="image in images" :key="image.id" cols="2" offset-sm="1">
-                <v-tooltip top>
-                  <template v-slot:activator="{ on }">
-                    <img
-                      style="width:185px; height:auto;"
-                      :id="'snap_' + image.id"
-                      :src="image.dataurl"
-                      v-on="on"
-                      @click="forceFileDownload(image.id)"
-                    />
-                  </template>
-                  <span>Download picture</span>
-                </v-tooltip>
-              </v-col>
-              <v-col
-                v-for="filteredImage in filteredImages"
-                :key="'key_'+filteredImage.id"
-                cols="2"
-              >
-                <v-tooltip top v-if="filters">
-                  <template v-slot:activator="{ on }">
-                    <img
-                      style="width:185px; height:auto;"
-                      :id="'filtered_' + filteredImage.id"
-                      :src="filteredImage.dataurl"
-                      v-on="on"
-                      @click="forceFileDownload(filteredImage.id,'filtered')"
-                    />
-                  </template>
-                  <span>Download picture</span>
-                </v-tooltip>
-              </v-col>
-            </v-row>
-
-            <v-dialog v-model="dialog" persistent max-width="400">
-              <v-card>
-                <v-card-title class="headline">Do you like it?</v-card-title>
-                <v-card-text>
-                  <p>A smile was detected. Select the image you like, when select the auto mode is going to disable to allow you work on the image.</p>
-                  <p>If you select No. This window is going to close and auto mode start again</p>
-                  <img
-                    class="smile-images"
-                    v-for="image in images"
-                    :key="'snap_key_'+image.id"
-                    style="cursor:pointer;width:185px; height:auto;"
-                    :id="'snap_preview_' + image.id"
-                    :src="image.dataurl"
-                    @click="chooseImage(image.id)"
-                  />
-                </v-card-text>
-                <v-card-actions>
-                  <v-spacer></v-spacer>
-                  <v-btn
-                    color="green darken-1"
-                    text
-                    @click="dialog = false; manual = false; "
-                  >I dont like any</v-btn>
-                  <!--<v-btn color="green darken-1" text @click="dialog = false; manual = true; ">Yes</v-btn>-->
-                </v-card-actions>
-              </v-card>
-            </v-dialog>
-
-            <v-dialog v-model="nexmo_dialog" persistent max-width="400">
-              <v-card>
-                <v-card-title class="headline">Send snapshot to your phone</v-card-title>
-                <v-card-text>
-                  <v-text-field v-model="phone" label="Enter your phone" required></v-text-field>
-                  <p>Select one of the next images</p>
-                  <img
-                    v-for="image in images"
-                    :key="'snap_key_'+image.id"
-                    style="cursor:pointer;width:100px; height:auto;"
-                    :id="'snap_preview_' + image.id"
-                    :src="image.dataurl"
-                    :class="'image-selection'+((('snap_preview_' + image.id) == self2nextAlias)?' choosenone':'')"
-                    @click="selected2Nexmo(image.id); self2nextAlias='snap_preview_' + image.id;"
-                  />
-                  <img
-                    v-for="filteredImage in filteredImages"
-                    :key="'snap_filtered_key_'+filteredImage.id"
-                    style="cursor:pointer;width:100px; height:auto;"
-                    :id="'snapfiltered_preview_' + filteredImage.id"
-                    :src="filteredImage.dataurl"
-                    :class="'image-selection'+((('snapfiltered_preview_' + filteredImage.id) == self2nextAlias)?' choosenone':'')"
-                    @click="selected2Nexmo(filteredImage.id, 'filtered'); self2nextAlias='snapfiltered_preview_' + filteredImage.id;"
-                  />
-                  <img
-                    style="cursor:pointer;width:300px; height:auto;"
-                    id="strip_image"
-                    :src="stripedimage"
-                    :class="'image-selection'+((('striped') == self2nextAlias)?' choosenone':'')"
-                    @click="selected2Nexmo('striped', 'striped'); self2nextAlias='striped';"
-                  />
-                </v-card-text>
-                <v-card-actions>
-                  <v-spacer></v-spacer>
-                  <v-btn color="green darken-1" text @click="nexmo_dialog=false">Cancel</v-btn>
-                  <v-btn color="green darken-1" text @click="sendMMS()">Send</v-btn>
-                </v-card-actions>
-              </v-card>
-            </v-dialog>
           </v-container>
         </v-col>
-        <!--<video id="_webcam" ref="_webcam" style="display: none;" playsinline></video>
-        <canvas id="_imageData" ref="_imageData"></canvas>-->
+        <v-col cols="2">
+          <v-navigation-drawer permanent class="options">
+            <div style="padding: 10px">
+              <v-row>
+                <v-col cols="10" style="text-align:center;">
+                  <img src="/images/agents.png" height="22" />
+                </v-col>
+              </v-row>
+              <v-divider></v-divider>
+              <v-row style="margin-left:15px">
+                <img
+                  v-for="image in images"
+                  :key="image.id"
+                  style="width:135px; height:auto;"
+                  :id="'snap_' + image.id"
+                  :src="image.dataurl"
+                  v-on="on"
+                  @click="forceFileDownload(image.id)"
+                />
+                <img
+                  v-for="filteredImage in filteredImages"
+                  :key="'key_'+filteredImage.id"
+                  style="width:135px; height:auto;"
+                  :id="'filtered_' + filteredImage.id"
+                  :src="filteredImage.dataurl"
+                  v-on="on"
+                  @click="forceFileDownload(filteredImage.id,'filtered')"
+                />
+              </v-row>
+
+              <v-dialog v-model="dialog" persistent max-width="400">
+                <v-card>
+                  <v-card-title class="headline">Do you like it?</v-card-title>
+                  <v-card-text>
+                    <p>A smile was detected. Select the image you like, when select the auto mode is going to disable to allow you work on the image.</p>
+                    <p>If you select No. This window is going to close and auto mode start again</p>
+                    <img
+                      class="smile-images"
+                      v-for="image in images"
+                      :key="'snap_key_'+image.id"
+                      style="cursor:pointer;width:185px; height:auto;"
+                      :id="'snap_preview_' + image.id"
+                      :src="image.dataurl"
+                      @click="chooseImage(image.id)"
+                    />
+                  </v-card-text>
+                  <v-card-actions>
+                    <v-spacer></v-spacer>
+                    <v-btn
+                      color="green darken-1"
+                      text
+                      @click="dialog = false; manual = false; "
+                    >I dont like any</v-btn>
+                    <!--<v-btn color="green darken-1" text @click="dialog = false; manual = true; ">Yes</v-btn>-->
+                  </v-card-actions>
+                </v-card>
+              </v-dialog>
+
+              <v-dialog v-model="nexmo_dialog" persistent max-width="400">
+                <v-card>
+                  <v-card-title class="headline">
+                    <v-img
+                      :src="require('./assets/sms-title.png')"
+                      class="title"
+                      contain
+                      height="50"
+                    />
+                  </v-card-title>
+                  <v-card-text>
+                    <v-text-field v-model="phone" label="Enter your phone" required></v-text-field>
+                    <p>Select one of the next images</p>
+                    <img
+                      v-for="image in images"
+                      :key="'snap_key_'+image.id"
+                      style="cursor:pointer;width:100px; height:auto;"
+                      :id="'snap_preview_' + image.id"
+                      :src="image.dataurl"
+                      :class="'image-selection'+((('snap_preview_' + image.id) == self2nextAlias)?' choosenone':'')"
+                      @click="selected2Nexmo(image.id); self2nextAlias='snap_preview_' + image.id;"
+                    />
+                    <img
+                      v-for="filteredImage in filteredImages"
+                      :key="'snap_filtered_key_'+filteredImage.id"
+                      style="cursor:pointer;width:100px; height:auto;"
+                      :id="'snapfiltered_preview_' + filteredImage.id"
+                      :src="filteredImage.dataurl"
+                      :class="'image-selection'+((('snapfiltered_preview_' + filteredImage.id) == self2nextAlias)?' choosenone':'')"
+                      @click="selected2Nexmo(filteredImage.id, 'filtered'); self2nextAlias='snapfiltered_preview_' + filteredImage.id;"
+                    />
+                    <img
+                      style="cursor:pointer;width:300px; height:auto;"
+                      id="strip_image"
+                      :src="stripedimage"
+                      :class="'image-selection'+((('striped') == self2nextAlias)?' choosenone':'')"
+                      @click="selected2Nexmo('striped', 'striped'); self2nextAlias='striped';"
+                    />
+                  </v-card-text>
+                  <v-card-actions>
+                    <v-spacer></v-spacer>
+                    <v-btn color="green darken-1" text @click="nexmo_dialog=false">Cancel</v-btn>
+                    <v-btn color="green darken-1" text @click="sendMMS()">Send</v-btn>
+                  </v-card-actions>
+                </v-card>
+              </v-dialog>
+            </div>
+          </v-navigation-drawer>
+        </v-col>
       </v-row>
     </v-content>
     <v-snackbar v-model="snackbar">
@@ -220,7 +202,7 @@ export default {
     site_url: ENV.SITE_URL ? ENV.SITE_URL : "",
     images: [],
     publisher: null,
-    counter: 10,
+    counter: 6,
     timerId: 0,
     manual: true,
     manual_label: "Manual",
@@ -301,7 +283,7 @@ export default {
       this.timerId = setInterval(() => (this.counter -= 1), 1000);
       setTimeout(() => {
         clearInterval(this.timerId);
-        this.counter = 10;
+        this.counter = 6;
 
         //this.images.push({id:this.images.length+1, dataurl: 'data:image/png;base64,'+ this.publisher.getImgData()})
         let imageData = this.publisher.getImgData();
@@ -363,7 +345,7 @@ export default {
           this.azure_face_api_subscription_key
         );
         xhr.send(blob);
-      }, 10000);
+      }, 6000);
     },
     analyzeAuto() {
       //Each second an image is sent to azure to analyze if smile is present
