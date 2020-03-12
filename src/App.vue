@@ -8,27 +8,19 @@
               <v-list-item-content>
                 <v-list-item-title class="title">
                   Options
-                  <v-switch
-                    v-model="manual"
-                    :label="`${manual_label}`"
-                  ></v-switch>
-                  <v-switch
-                    v-model="filters"
-                    :label="`With filters?`"
-                  ></v-switch>
+                  <v-switch v-model="manual" :label="`${manual_label}`"></v-switch>
+                  <v-switch v-model="filters" :label="`With filters?`"></v-switch>
                 </v-list-item-title>
               </v-list-item-content>
             </v-list-item>
             <v-list-item>
               <v-list-item-content>
                 <v-list-item-title class="title">
-                  <v-btn @click="nexmo_dialog = true"
-                    >Send Snap to Number</v-btn
-                  >
+                  <v-btn @click="nexmo_dialog=true; getStripImage()">SMS Snap</v-btn>
                 </v-list-item-title>
               </v-list-item-content>
             </v-list-item>
-            <v-list-item>
+            <!--<v-list-item>
               <v-list-item-content>
                 <v-list-item-title class="title">Your pics</v-list-item-title>
               </v-list-item-content>
@@ -37,13 +29,7 @@
               <v-list-item-content>
                 <v-tooltip top>
                   <template v-slot:activator="{ on }">
-                    <img
-                      style="width:185px; height:auto;"
-                      :id="'snap_' + image.id"
-                      :src="image.dataurl"
-                      v-on="on"
-                      @click="forceFileDownload(image.id)"
-                    />
+                    <img style="width:185px; height:auto;" :id="'snap_' + image.id" :src="image.dataurl" v-on="on" @click="forceFileDownload(image.id)"/>
                   </template>
                   <span>Download picture</span>
                 </v-tooltip>
@@ -54,34 +40,23 @@
                 <v-list-item-title class="title">
                   With Filters
                 </v-list-item-title>
-                <v-list-item
-                  v-for="filteredImage in filteredImages"
-                  :key="filteredImage.id"
-                >
+                <v-list-item v-for="filteredImage in filteredImages" :key="filteredImage.id">
                   <v-list-item-content>
                     <v-tooltip top>
                       <template v-slot:activator="{ on }">
-                        <img
-                          style="width:185px; height:auto;"
-                          :id="'filtered_' + filteredImage.id"
-                          :src="filteredImage.dataurl"
-                          v-on="on"
-                          @click="
-                            forceFileDownload(filteredImage.id, 'filtered')
-                          "
-                        />
+                        <img style="width:185px; height:auto;" :id="'filtered_' + filteredImage.id" :src="filteredImage.dataurl" v-on="on" @click="forceFileDownload(filteredImage.id,'filtered')"/>
                       </template>
                       <span>Download picture</span>
                     </v-tooltip>
                   </v-list-item-content>
                 </v-list-item>
-                <v-list-item>
-                  <v-list-item-content>
-                    <v-list-item-title class="title">
-                      <v-btn @click="downloadImages()">Download Images</v-btn>
-                    </v-list-item-title>
-                  </v-list-item-content>
-                </v-list-item>
+              </v-list-item-content>
+            </v-list-item>-->
+            <v-list-item v-if="filters">
+              <v-list-item-content>
+                <v-list-item-title class="title">
+                  <v-btn @click="downloadImages()">Download Images</v-btn>
+                </v-list-item-title>
               </v-list-item-content>
             </v-list-item>
           </v-navigation-drawer>
@@ -89,12 +64,7 @@
         <v-col cols="10">
           <v-container>
             <v-card class="mx-auto camera" max-width="500" outlined>
-              <v-img
-                :src="require('./assets/logo.png')"
-                class="title"
-                contain
-                height="50"
-              />
+              <v-img :src="require('./assets/logo.png')" class="title" contain height="50" />
 
               <v-card-text>
                 <div id="videos" align="center" justify="center">
@@ -108,38 +78,71 @@
                 </div>
               </v-card-text>
               <v-card-actions>
-                <v-btn
-                  @click="analyze()"
-                  v-if="manual == true"
-                  text
-                  class="analyze"
-                >
-                  <v-img
-                    :src="require('./assets/snap.png')"
-                    contain
-                    height="50"
-                  />
+                <v-btn @click="analyze()" v-if="manual == true" text class="analyze">
+                  <v-img :src="require('./assets/snap.png')" contain height="50" />
                 </v-btn>
               </v-card-actions>
             </v-card>
+
+            <v-row>
+              <v-col cols="10" offset-sm="1">
+                <h2 style="text-align:center;">Your Pics</h2>
+              </v-col>
+            </v-row>
+            <v-divider></v-divider>
+            <v-row>
+              <v-col cols="2" offset-sm="1">
+                <h4 v-if="images.length>0" style="text-align:center;">Original</h4>
+              </v-col>
+              <v-col cols="8">
+                <h4 v-if="filters" style="text-align:center;">With Filters</h4>
+              </v-col>
+            </v-row>
+            <v-row>
+              <v-col v-for="image in images" :key="image.id" cols="2" offset-sm="1">
+                <v-tooltip top>
+                  <template v-slot:activator="{ on }">
+                    <img
+                      style="width:185px; height:auto;"
+                      :id="'snap_' + image.id"
+                      :src="image.dataurl"
+                      v-on="on"
+                      @click="forceFileDownload(image.id)"
+                    />
+                  </template>
+                  <span>Download picture</span>
+                </v-tooltip>
+              </v-col>
+              <v-col
+                v-for="filteredImage in filteredImages"
+                :key="'key_'+filteredImage.id"
+                cols="2"
+              >
+                <v-tooltip top v-if="filters">
+                  <template v-slot:activator="{ on }">
+                    <img
+                      style="width:185px; height:auto;"
+                      :id="'filtered_' + filteredImage.id"
+                      :src="filteredImage.dataurl"
+                      v-on="on"
+                      @click="forceFileDownload(filteredImage.id,'filtered')"
+                    />
+                  </template>
+                  <span>Download picture</span>
+                </v-tooltip>
+              </v-col>
+            </v-row>
 
             <v-dialog v-model="dialog" persistent max-width="400">
               <v-card>
                 <v-card-title class="headline">Do you like it?</v-card-title>
                 <v-card-text>
-                  <p>
-                    A smile was detected. Select the image you like, when
-                    selecting the auto mode is going to disable to allow you
-                    work on the image.
-                  </p>
-                  <p>
-                    If you select No. This window is going to close and auto
-                    mode start again
-                  </p>
+                  <p>A smile was detected. Select the image you like, when select the auto mode is going to disable to allow you work on the image.</p>
+                  <p>If you select No. This window is going to close and auto mode start again</p>
                   <img
                     class="smile-images"
                     v-for="image in images"
-                    :key="'snap_key_' + image.id"
+                    :key="'snap_key_'+image.id"
                     style="cursor:pointer;width:185px; height:auto;"
                     :id="'snap_preview_' + image.id"
                     :src="image.dataurl"
@@ -151,12 +154,8 @@
                   <v-btn
                     color="green darken-1"
                     text
-                    @click="
-                      dialog = false;
-                      manual = false;
-                    "
-                    >I dont like any</v-btn
-                  >
+                    @click="dialog = false; manual = false; "
+                  >I dont like any</v-btn>
                   <!--<v-btn color="green darken-1" text @click="dialog = false; manual = true; ">Yes</v-btn>-->
                 </v-card-actions>
               </v-card>
@@ -164,78 +163,52 @@
 
             <v-dialog v-model="nexmo_dialog" persistent max-width="400">
               <v-card>
-                <v-card-title class="headline"
-                  >Send snapshot to your phone</v-card-title
-                >
+                <v-card-title class="headline">Send snapshot to your phone</v-card-title>
                 <v-card-text>
-                  <v-text-field
-                    v-model="phone"
-                    label="Enter your phone"
-                    required
-                  ></v-text-field>
+                  <v-text-field v-model="phone" label="Enter your phone" required></v-text-field>
                   <p>Select one of the next images</p>
                   <img
                     v-for="image in images"
-                    :key="'snap_key_' + image.id"
+                    :key="'snap_key_'+image.id"
                     style="cursor:pointer;width:100px; height:auto;"
                     :id="'snap_preview_' + image.id"
                     :src="image.dataurl"
-                    :class="
-                      'image-selection' +
-                        ('snap_preview_' + image.id == self2nextAlias
-                          ? ' choosenone'
-                          : '')
-                    "
-                    @click="
-                      selected2Nexmo(image.id);
-                      self2nextAlias = 'snap_preview_' + image.id;
-                    "
+                    :class="'image-selection'+((('snap_preview_' + image.id) == self2nextAlias)?' choosenone':'')"
+                    @click="selected2Nexmo(image.id); self2nextAlias='snap_preview_' + image.id;"
                   />
                   <img
                     v-for="filteredImage in filteredImages"
-                    :key="'snap_filtered_key_' + filteredImage.id"
+                    :key="'snap_filtered_key_'+filteredImage.id"
                     style="cursor:pointer;width:100px; height:auto;"
                     :id="'snapfiltered_preview_' + filteredImage.id"
                     :src="filteredImage.dataurl"
-                    :class="
-                      'image-selection' +
-                        ('snapfiltered_preview_' + filteredImage.id ==
-                        self2nextAlias
-                          ? ' choosenone'
-                          : '')
-                    "
-                    @click="
-                      selected2Nexmo(filteredImage.id, 'filtered');
-                      self2nextAlias =
-                        'snapfiltered_preview_' + filteredImage.id;
-                    "
+                    :class="'image-selection'+((('snapfiltered_preview_' + filteredImage.id) == self2nextAlias)?' choosenone':'')"
+                    @click="selected2Nexmo(filteredImage.id, 'filtered'); self2nextAlias='snapfiltered_preview_' + filteredImage.id;"
+                  />
+                  <img
+                    style="cursor:pointer;width:300px; height:auto;"
+                    id="strip_image"
+                    :src="stripedimage"
+                    :class="'image-selection'+((('striped') == self2nextAlias)?' choosenone':'')"
+                    @click="selected2Nexmo('striped', 'striped'); self2nextAlias='striped';"
                   />
                 </v-card-text>
                 <v-card-actions>
                   <v-spacer></v-spacer>
-                  <v-btn
-                    color="green darken-1"
-                    text
-                    @click="nexmo_dialog = false"
-                    >Cancel</v-btn
-                  >
-                  <v-btn color="green darken-1" text @click="sendMMS()"
-                    >Send</v-btn
-                  >
+                  <v-btn color="green darken-1" text @click="nexmo_dialog=false">Cancel</v-btn>
+                  <v-btn color="green darken-1" text @click="sendMMS()">Send</v-btn>
                 </v-card-actions>
               </v-card>
             </v-dialog>
           </v-container>
         </v-col>
         <!--<video id="_webcam" ref="_webcam" style="display: none;" playsinline></video>
-          <canvas id="_imageData" ref="_imageData"></canvas>-->
+        <canvas id="_imageData" ref="_imageData"></canvas>-->
       </v-row>
     </v-content>
     <v-snackbar v-model="snackbar">
       {{ snackbar_message }}
-      <v-btn color="pink" text @click="snackbar = false">
-        Close
-      </v-btn>
+      <v-btn color="pink" text @click="snackbar = false">Close</v-btn>
     </v-snackbar>
   </v-app>
 </template>
@@ -287,7 +260,8 @@ export default {
     nexmo_dialog: false,
     phone: "",
     sel2next: null,
-    self2nextAlias: ""
+    self2nextAlias: "",
+    stripedimage: ""
   }),
 
   mounted() {
@@ -511,6 +485,7 @@ export default {
     },
     selected2Nexmo(imgid, filtered) {
       if (filtered == undefined) this.sel2next = this.images[imgid - 1].dataurl;
+      else if (filtered == "striped") this.sel2next = this.stripedimage;
       else this.sel2next = this.filteredImages[imgid - 1].dataurl;
     },
     sendMMS() {
@@ -542,6 +517,24 @@ export default {
             this.snackbar = true;
           });
       }
+    },
+    getStripImage() {
+      let x_increment = 640;
+      let y = 0;
+      let x = -640;
+      let pic_number = 4;
+      var canvas = document.createElement("canvas");
+      canvas.width = 640 * pic_number;
+      canvas.height = 480;
+      var ctx = canvas.getContext("2d");
+      for (let f = 0; f < this.filteredImages.length; f++) {
+        x = x + x_increment;
+        let img = document.getElementById(
+          "filtered_" + this.filteredImages[f].id
+        );
+        ctx.drawImage(img, x, y);
+      }
+      this.stripedimage = canvas.toDataURL();
     },
     handleError(error) {
       if (error) {
