@@ -1,0 +1,6 @@
+// Replace these values with those generated in your TokBox account
+const OPENTOK_API_KEY = "46532612";
+const OPENTOK_SESSION_ID = "2_MX40NjUzMjYxMn5-MTU4Mzg2MzU4NzU4MX5NeGd2TEhUUDQrMTJyQWRta0VhVk94b0h-fg";
+const OPENTOK_TOKEN = "T1==cGFydG5lcl9pZD00NjUzMjYxMiZzaWc9MjAyY2NiMzZkNzI3MzEwZTI0MmJjNzFiYTRhZTA2OWI4YWNlN2E5YjpzZXNzaW9uX2lkPTJfTVg0ME5qVXpNall4TW41LU1UVTRNemcyTXpVNE56VTRNWDVOZUdkMlRFaFVVRFFyTVRKeVFXUnRhMFZoVms5NGIwaC1mZyZjcmVhdGVfdGltZT0xNTgzODYzNTk3Jm5vbmNlPTAuODQzMjUzNzk1MzUyOTIzMSZyb2xlPXB1Ymxpc2hlciZleHBpcmVfdGltZT0xNTgzODY3MTk3JmluaXRpYWxfbGF5b3V0X2NsYXNzX2xpc3Q9";
+const AZURE_FACE_API_SUBSCRIPTION_KEY = '2034d88d028945dcab8a819f1d491fab';
+const AZURE_FACE_API_ENDPOINT = 'https://face-opentok-nexmo-azure.cognitiveservices.azure.com/';
