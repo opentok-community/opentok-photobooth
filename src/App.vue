@@ -3,19 +3,33 @@
     <v-content>
       <v-row>
         <v-col cols="2">
-          <v-navigation-drawer permanent class="options">
+          <v-navigation-drawer
+            permanent
+            class="options"
+          >
             <div style="padding: 10px">
-              <v-img :src="require('./assets/manual.png')" class="title" contain />
+              <v-img
+                :src="require('./assets/manual.png')"
+                class="title"
+                contain
+              />
               <v-switch v-model="manual" />
 
-              <v-img :src="require('./assets/filter.png')" class="title" contain />
+              <v-img
+                :src="require('./assets/filter.png')"
+                class="title"
+                contain
+              />
               <v-switch v-model="filters"></v-switch>
 
               <v-btn
                 @click="nexmo_dialog=true; getStripImage()"
                 style="background-color:inherit !important; padding: 0 !important; text-align:center;"
               >
-                <img src="/images/sms.png" height="40px" />
+                <img
+                  src="/images/sms.png"
+                  height="40px"
+                />
               </v-btn>
 
               <br />
@@ -25,41 +39,81 @@
                 @click="downloadImages()"
                 style="background-color:inherit !important; padding: 0 !important;"
               >
-                <img src="/images/download.png" height="40px" />
+                <img
+                  src="/images/download.png"
+                  height="40px"
+                />
               </v-btn>
             </div>
           </v-navigation-drawer>
         </v-col>
         <v-col cols="8">
           <v-container>
-            <v-card class="mx-auto camera" max-width="500" outlined>
-              <v-img :src="require('./assets/logo.png')" class="title" contain height="50" />
+            <v-card
+              class="mx-auto camera"
+              max-width="500"
+              outlined
+            >
+              <v-img
+                :src="require('./assets/logo.png')"
+                class="title"
+                contain
+                height="50"
+              />
 
               <v-card-text>
-                <div id="videos" align="center" justify="center">
+                <div
+                  id="videos"
+                  align="center"
+                  justify="center"
+                >
                   <div id="publisher">
-                    <v-overlay :absolute="true" :value="counter != 6">
+                    <v-overlay
+                      :absolute="true"
+                      :value="counter != 6"
+                    >
                       <div style="font-size:150px;">{{ counter }}</div>
                     </v-overlay>
                     <!--<div v-if="counter != 10" style="position:absolute;top:0px;font-size:150px;z-index:1000;">{{ counter }}</div>-->
                   </div>
                 </div>
-                <img class="doof" src="/images/doof.png" />
+                <img
+                  class="doof"
+                  src="/images/doof.png"
+                />
               </v-card-text>
               <v-card-actions>
-                <v-btn @click="analyze()" v-if="manual == true" text class="analyze">
-                  <v-img :src="require('./assets/snap.png')" contain height="50" />
+                <v-btn
+                  @click="analyze()"
+                  v-if="manual == true"
+                  text
+                  class="analyze"
+                >
+                  <v-img
+                    :src="require('./assets/snap.png')"
+                    contain
+                    height="50"
+                  />
                 </v-btn>
               </v-card-actions>
             </v-card>
           </v-container>
         </v-col>
         <v-col cols="2">
-          <v-navigation-drawer permanent class="options">
+          <v-navigation-drawer
+            permanent
+            class="options"
+          >
             <div style="padding: 10px">
               <v-row>
-                <v-col cols="10" style="text-align:center;">
-                  <img src="/images/agents.png" height="22" />
+                <v-col
+                  cols="10"
+                  style="text-align:center;"
+                >
+                  <img
+                    src="/images/agents.png"
+                    height="22"
+                  />
                 </v-col>
               </v-row>
               <v-divider></v-divider>
@@ -82,7 +136,11 @@
                 />
               </v-row>
 
-              <v-dialog v-model="dialog" persistent max-width="400">
+              <v-dialog
+                v-model="dialog"
+                persistent
+                max-width="400"
+              >
                 <v-card>
                   <v-card-title class="headline">Do you like it?</v-card-title>
                   <v-card-text>
@@ -110,7 +168,11 @@
                 </v-card>
               </v-dialog>
 
-              <v-dialog v-model="nexmo_dialog" persistent max-width="400">
+              <v-dialog
+                v-model="nexmo_dialog"
+                persistent
+                max-width="400"
+              >
                 <v-card>
                   <v-card-title class="headline">
                     <v-img
@@ -121,8 +183,12 @@
                     />
                   </v-card-title>
                   <v-card-text>
-                    <v-text-field v-model="phone" label="Enter your phone" required></v-text-field>
-                    <p>Select one of the next images</p>
+                    <v-text-field
+                      v-model="phone"
+                      label="Enter your phone number: Eg: 12023334455"
+                      required
+                    ></v-text-field>
+                    <p>Select one of the following images</p>
                     <img
                       v-for="image in images"
                       :key="'snap_key_'+image.id"
@@ -151,8 +217,16 @@
                   </v-card-text>
                   <v-card-actions>
                     <v-spacer></v-spacer>
-                    <v-btn color="green darken-1" text @click="nexmo_dialog=false">Cancel</v-btn>
-                    <v-btn color="green darken-1" text @click="sendMMS()">Send</v-btn>
+                    <v-btn
+                      color="green darken-1"
+                      text
+                      @click="nexmo_dialog=false"
+                    >Cancel</v-btn>
+                    <v-btn
+                      color="green darken-1"
+                      text
+                      @click="sendMSG()"
+                    >Send</v-btn>
                   </v-card-actions>
                 </v-card>
               </v-dialog>
@@ -163,7 +237,11 @@
     </v-content>
     <v-snackbar v-model="snackbar">
       {{ snackbar_message }}
-      <v-btn color="pink" text @click="snackbar = false">Close</v-btn>
+      <v-btn
+        color="pink"
+        text
+        @click="snackbar = false"
+      >Close</v-btn>
     </v-snackbar>
   </v-app>
 </template>
@@ -275,9 +353,9 @@ export default {
       return new Blob([ia], { type: mimeString });
     },
     analyze() {
-      this.images = []
-      this.filteredImages = []
-      this.filters = false
+      this.images = [];
+      this.filteredImages = [];
+      this.filters = false;
       //console.log(this.publisher.getImgData())
       //this.imagen = 'data:image/png;base64,'+ this.publisher.getImgData()
       //console.log(this.dataURItoBlob(this.imagen))
@@ -349,7 +427,7 @@ export default {
       }, 6000);
     },
     analyzeAuto() {
-      this.filters = false
+      this.filters = false;
       //Each second an image is sent to azure to analyze if smile is present
       this.timerId = setInterval(() => {
         console.log("Intent");
@@ -426,7 +504,7 @@ export default {
       else if (filtered == "striped") this.sel2next = this.stripedimage;
       else this.sel2next = this.filteredImages[imgid - 1].dataurl;
     },
-    sendMMS() {
+    sendMSG() {
       if (this.phone == "" || this.self2nextAlias == "") {
         this.snackbar_message =
           "Fields required. Please ensure to fill the phone and select an image.";

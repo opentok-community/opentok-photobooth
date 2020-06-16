@@ -1,6 +1,6 @@
 # opentok-photobooth
 
-## Project setup
+## Set up frontend with Vue.js
 
 ```
 npm install
@@ -24,6 +24,8 @@ npm run build
 npm run lint
 ```
 
-### Customize configuration
+## To run our Python Backend
 
-See [Configuration Reference](https://cli.vuejs.org/config/).
+```
+gunicorn -b 0.0.0.0:80 server:app
+```
