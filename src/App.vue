@@ -68,7 +68,7 @@
                   v-for="image in images"
                   :key="image.id"
                   style="width:135px; height:auto; cursor:pointer;"
-                  :id="'snap_' + image.id"
+                  :id="`snap_${image.id}`"
                   :src="image.dataurl"
                   @click="forceFileDownload(image.id)"
                 />
@@ -76,7 +76,7 @@
                   v-for="filteredImage in filteredImages"
                   :key="'key_'+filteredImage.id"
                   style="width:135px; height:auto; cursor:pointer;"
-                  :id="'filtered_' + filteredImage.id"
+                  :id="`filtered_${filteredImage.id}`"
                   :src="filteredImage.dataurl"
                   @click="forceFileDownload(filteredImage.id,'filtered')"
                 />
