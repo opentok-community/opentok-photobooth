@@ -9,6 +9,7 @@ app.use(bodyParser.json({limit: '10mb', extended: true}))
 app.use(cors());
 
 const config = require("./src/config")["ENV"]
+const port = 80;
 
 const Nexmo = require('nexmo');
 const nexmo = new Nexmo({
@@ -77,6 +78,6 @@ app.post('/send-mms',function(req, res){
 
 });
 
-app.listen(80,function(){
-    console.log("Listening in port 80");
+app.listen(port,function(){
+    console.log(`Listening in port ${port}`);
 });
