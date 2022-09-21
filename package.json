@@ -16,7 +16,7 @@
     "express": "^4.17.1",
     "nexmo": "^2.6.0-beta-1",
     "vue": "^2.6.11",
-    "vuetify": "^2.2.11"
+    "vuetify": "^2.6.10"
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "~4.2.0",
